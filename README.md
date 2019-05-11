@@ -14,6 +14,7 @@ Table of Contents
 - [Spin up Jenkins on MicroK8s](#Spin-up-Jenkins-on-MicroK8s)
 - [Tear Down](#Tear-Down)
 - [Advanced: Serve up a local directory of git projects](#Serve-up-a-local-directory-of-git-projects)
+- [Advanced: Store SSH Key in K8s](#Store-SSH-Key-in-K8s)
 - [Pull in latest kubernetes-operator](#Pull-in-latest-kubernetes-operator)
 - [Troubleshooting](#Troubleshooting)
 - [Helpful Links](#Helpful-Links)
@@ -87,6 +88,16 @@ Use this to serve up test repos for playing with Jenkins locally.
 For the original inspiration for this trick, see
 [A one-off git repo server](https://datagrok.org/git/git-serve/).
 
+### Store SSH Key in K8s
+
+```bash
+microk8s.kubectl create secret generic k8s-ssh --from-file=privateKey=</path/to/.ssh/id_rsa> --from-literal=username=<your-username>
+```
+_This must be an RSA SSH key; ED25519 does not work._
+
+See [SSH authentication](jenkins-operator/docs/getting-started.md#SSH-authentication)
+in jenkins-operator/docs/getting-started.md
+
 ## Pull in latest kubernetes-operator
 
 The _jenkins-operator_ folder in this project is a clone of
@@ -108,6 +119,13 @@ microk8s.kubectl run -it busybox --image=busybox:1.28 -- sh
 You can then test things such as DNS from inside a pod on k8s
 ```bash
 nslookup google.com
+```
+
+If you exit the busybox shell, but it is still running, you can reconnect
+to a shell with:
+
+```bash
+kubectl exec -it <busybox pod name> -- sh
 ```
 
 ## Helpful Links

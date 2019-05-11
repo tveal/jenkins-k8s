@@ -10,6 +10,14 @@ Goals:
 - Can be spun up locally without a remote cloud/infra dependency
 - ...
 
+Table of Contents
+- [Spin up Jenkins on MicroK8s](#Spin-up-Jenkins-on-MicroK8s)
+- [Tear Down](#Tear-Down)
+- [Advanced: Serve up a local directory of git projects](#Serve-up-a-local-directory-of-git-projects)
+- [Pull in latest kubernetes-operator](#Pull-in-latest-kubernetes-operator)
+- [Troubleshooting](#Troubleshooting)
+- [Helpful Links](#Helpful-Links)
+
 ## Spin up Jenkins on MicroK8s
 
 ### Get the K8s cluster ready
@@ -46,9 +54,43 @@ microk8s.kubectl get endpoints jenkins-operator-http-example
     - If you just stop the k8s cluster, you can start it back with
     `microk8s.start`. You'll have to lookup the new endpoint though.
 
+## Advanced
+
+### Serve up a local directory of git projects
+
+Example folder structure:
+
+```
+my-public-repos/
+    - repo-a/
+    - repo-b/
+    - repo-c/
+    ...
+```
+
+To serve up all repos in `my-public-repos` on your IP, run the following inside one of the repos,
+such as `repo-a`; This creates the _quickserve_ alias in that repo.
+
+```bash
+git config --global alias.quickserve "daemon --verbose --export-all --base-path=../ --reuseaddr"
+```
+
+Then in the same repo, run the command:
+
+```bash
+git quickserve
+```
+
+You can then run `git clone git://localhost/repo-b` in a _separate_ terminal to clone _repo-b_.
+Use this to serve up test repos for playing with Jenkins locally.
+**To use inside a k8s cluster, you'll need to use your inet IP of your real network device (use `ifconfig`).**
+For the original inspiration for this trick, see
+[A one-off git repo server](https://datagrok.org/git/git-serve/).
+
 ## Pull in latest kubernetes-operator
 
-The _jenkins-operator_ folder in this project is a clone of [kubernetes-operator](https://github.com/jenkinsci/kubernetes-operator).
+The _jenkins-operator_ folder in this project is a clone of
+[kubernetes-operator](https://github.com/jenkinsci/kubernetes-operator).
 You can add the original source repo as an additional remote to pull in the latest. For merge conflicts, keep in mind
 that all the source of _kubernetes-operator_ was moved into the sub-folder _jenkins-operator_.
 

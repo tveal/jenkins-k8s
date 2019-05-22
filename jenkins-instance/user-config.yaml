@@ -1,0 +1,43 @@
+apiVersion: v1
+data:
+  1-configure-theme.groovy: |2
+
+    import jenkins.*
+    import jenkins.model.*
+    import hudson.*
+    import hudson.model.*
+    import org.jenkinsci.plugins.simpletheme.ThemeElement
+    import org.jenkinsci.plugins.simpletheme.CssTextThemeElement
+    import org.jenkinsci.plugins.simpletheme.CssUrlThemeElement
+
+    Jenkins jenkins = Jenkins.getInstance()
+
+    def decorator = Jenkins.instance.getDescriptorByType(org.codefirst.SimpleThemeDecorator.class)
+
+    List<ThemeElement> configElements = new ArrayList<>();
+    configElements.add(new CssTextThemeElement("DEFAULT"));
+    configElements.add(new CssUrlThemeElement("https://cdn.rawgit.com/afonsof/jenkins-material-theme/gh-pages/dist/material-light-green.css"));
+    decorator.setElements(configElements);
+    decorator.save();
+
+    jenkins.save()
+  2-system-config.yaml: |2
+    jenkins:
+      systemMessage: "Configuration as Code integration works!!!"
+    unclassified:
+      bitbucketEndpointConfiguration:
+        endpoints:
+        - bitbucketServerEndpoint:
+            callCanMerge: false
+            credentialsId: "jenkins-k8s-http-user"
+            displayName: "My Bitbucket"
+            manageHooks: true
+            serverUrl: "https://server.bitbucket.com"
+kind: ConfigMap
+metadata:
+  labels:
+    app: jenkins-operator
+    jenkins-cr: example
+    watch: "true"
+  name: jenkins-operator-user-configuration-example
+  namespace: default
